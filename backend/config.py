@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,7 +12,7 @@ class Settings(BaseSettings):
     jwt_audience: str = "ExpenseTrackerClient"
     jwt_expiry_minutes: int = 1440
 
-    cors_allowed_origin: str = "http://localhost:5173"
+    cors_allowed_origins: str = "http://localhost:5173"
 
 
 settings = Settings()

@@ -99,3 +99,83 @@ The app runs at **http://localhost:5173**.
 - For production: keep secrets in environment variables (never commit `.env`),
   serve the frontend build over HTTPS, and consider shorter token lifetimes
   with refresh tokens.
+
+---
+
+## 3. Deployment (Vercel + Render)
+
+Deploy the app for free using **Vercel** (frontend) and **Render** (backend + PostgreSQL).
+
+### Prerequisites
+
+- A [GitHub](https://github.com) account with this repo pushed
+- A [Render](https://render.com) account (free)
+- A [Vercel](https://vercel.com) account (free)
+
+### Step 1 — Create a Render PostgreSQL Database
+
+1. Go to [Render Dashboard](https://dashboard.render.com) → **New** → **PostgreSQL**
+2. Name: `expensetracker-db`
+3. Plan: **Free**
+4. Click **Create Database**
+5. Once created, copy the **Internal Database URL** (starts with `postgresql://...`)
+
+### Step 2 — Deploy the Backend on Render
+
+1. Go to Render Dashboard → **New** → **Web Service**
+2. Connect your GitHub repo
+3. Configure:
+   - **Name:** `expensetracker-api`
+   - **Root Directory:** `backend`
+   - **Runtime:** Python
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** (auto-detected from `Procfile`)
+   - **Plan:** Free
+4. Add **Environment Variables:**
+   | Key | Value |
+   |-----|-------|
+   | `DATABASE_URL` | *(paste the Internal Database URL from Step 1)* |
+   | `JWT_KEY` | *(a long random secret — generate one with `openssl rand -hex 32`)* |
+   | `JWT_ISSUER` | `ExpenseTrackerApi` |
+   | `JWT_AUDIENCE` | `ExpenseTrackerClient` |
+   | `JWT_EXPIRY_MINUTES` | `1440` |
+   | `CORS_ALLOWED_ORIGINS` | `https://your-app.vercel.app` *(update after Vercel deploy)* |
+5. Click **Deploy**
+6. Once live, note your backend URL (e.g. `https://expensetracker-api.onrender.com`)
+
+### Step 3 — Deploy the Frontend on Vercel
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard) → **Add New** → **Project**
+2. Import your GitHub repo
+3. Configure:
+   - **Root Directory:** `frontend`
+   - **Framework Preset:** Vite
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+4. Add **Environment Variable:**
+   | Key | Value |
+   |-----|-------|
+   | `VITE_API_URL` | `https://expensetracker-api.onrender.com/api` *(your Render URL + /api)* |
+5. Click **Deploy**
+6. Note your frontend URL (e.g. `https://your-app.vercel.app`)
+
+### Step 4 — Update CORS on Render
+
+1. Go back to your Render Web Service → **Environment**
+2. Update `CORS_ALLOWED_ORIGINS` to your Vercel URL:
+   ```
+   https://your-app.vercel.app
+   ```
+   For multiple origins (e.g. local + production), use comma-separated values:
+   ```
+   http://localhost:5173,https://your-app.vercel.app
+   ```
+3. Save — Render will auto-redeploy
+
+### Done! 🎉
+
+Your app is now live at your Vercel URL. Both services auto-deploy when you push to GitHub.
+
+> **Note:** Render free tier sleeps after 15 minutes of inactivity.
+> The first request after sleep takes ~30–60 seconds to wake up.
+

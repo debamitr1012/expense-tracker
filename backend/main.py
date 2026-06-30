@@ -12,7 +12,7 @@ app = FastAPI(title="ExpenseTracker API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.cors_allowed_origin],
+    allow_origins=[o.strip() for o in settings.cors_allowed_origins.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
