@@ -167,6 +167,8 @@ td { padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border-soft); font-
 .amt { font-weight: 600; }
 .del { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.85rem; }
 .del:hover { text-decoration: underline; }
+.edit { background: none; border: none; color: var(--green); cursor: pointer; font-size: 0.85rem; }
+.edit:hover { text-decoration: underline; }
 .empty { text-align: center; color: var(--text-faint); padding: 2rem; font-size: 0.9rem; }
 
 .filters { display: flex; gap: 0.7rem; margin-bottom: 1rem; flex-wrap: wrap; }

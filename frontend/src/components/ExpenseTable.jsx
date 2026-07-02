@@ -2,7 +2,7 @@ import { useState } from 'react'
 import * as XLSX from 'xlsx'
 import { CAT_COLORS, fmt } from '../api/constants'
 
-export default function ExpenseTable({ expenses, categories, onDelete }) {
+export default function ExpenseTable({ expenses, categories, onEdit, onDelete }) {
   const [filterCat, setFilterCat] = useState('')
   const [search, setSearch] = useState('')
 
@@ -67,7 +67,10 @@ export default function ExpenseTable({ expenses, categories, onDelete }) {
                 <td>{e.description}</td>
                 <td><span className="cat-pill" style={{ background: c + '22', color: c }}>{e.category}</span></td>
                 <td className="amt">{fmt(e.amount)}</td>
-                <td><button className="del" onClick={() => onDelete(e.id)}>Delete</button></td>
+                <td>
+                  <button className="edit" style={{ marginRight: '0.5rem' }} onClick={() => onEdit(e)}>Edit</button>
+                  <button className="del" onClick={() => onDelete(e.id)}>Delete</button>
+                </td>
               </tr>
             )
           })}

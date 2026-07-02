@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-export default function ExpenseForm({ categories, onAdd, onAddCategory }) {
+export default function ExpenseForm({ categories, selectedExpense, onSave, onAddCategory, onCancel }) {
   const d = new Date()
   const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   const [desc, setDesc] = useState('')
@@ -10,6 +10,22 @@ export default function ExpenseForm({ categories, onAdd, onAddCategory }) {
   const [date, setDate] = useState(today)
   const [saving, setSaving] = useState(false)
 
+  useEffect(() => {
+    if (selectedExpense) {
+      setDesc(selectedExpense.description)
+      setAmount(String(selectedExpense.amount))
+      setCategory(selectedExpense.category)
+      setDate(selectedExpense.date)
+      setNewCategory('')
+    } else {
+      setDesc('')
+      setAmount('')
+      setCategory('')
+      setNewCategory('')
+      setDate(today)
+    }
+  }, [selectedExpense, today])
+
   const submit = async () => {
     const amt = parseFloat(amount)
     if (!desc.trim() || !amt || amt <= 0 || !date || !category) {
@@ -18,9 +34,11 @@ export default function ExpenseForm({ categories, onAdd, onAddCategory }) {
     }
     setSaving(true)
     try {
-      await onAdd({ description: desc.trim(), amount: amt, category, date })
+      await onSave({ description: desc.trim(), amount: amt, category, date }, selectedExpense?.id)
       setDesc('')
       setAmount('')
+      setCategory('')
+      setDate(today)
     } finally {
       setSaving(false)
     }
@@ -36,7 +54,7 @@ export default function ExpenseForm({ categories, onAdd, onAddCategory }) {
 
   return (
     <div className="panel" style={{ marginBottom: '1.5rem' }}>
-      <h2>Add an expense</h2>
+      <h2>{selectedExpense ? 'Edit expense' : 'Add an expense'}</h2>
       <div className="add-form">
         <div className="field">
           <label>Description</label>
@@ -65,8 +83,15 @@ export default function ExpenseForm({ categories, onAdd, onAddCategory }) {
           <label>Date</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
-        <div className="field">
-          <button className="btn btn-sm" onClick={submit} disabled={saving}>+ Add expense</button>
+        <div className="field" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button className="btn btn-sm" onClick={submit} disabled={saving}>
+            {selectedExpense ? 'Update expense' : '+ Add expense'}
+          </button>
+          {selectedExpense && (
+            <button className="btn btn-sm" type="button" onClick={onCancel} disabled={saving}>
+              Cancel
+            </button>
+          )}
         </div>
       </div>
     </div>

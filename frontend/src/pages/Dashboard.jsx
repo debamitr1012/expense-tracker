@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState(null)
   const [categories, setCategories] = useState(CATEGORIES)
   const [loading, setLoading] = useState(true)
+  const [editingExpense, setEditingExpense] = useState(null)
 
   const loadAll = useCallback(async () => {
     const [exp, sum] = await Promise.all([
@@ -27,14 +28,27 @@ export default function Dashboard() {
 
   useEffect(() => { loadAll() }, [loadAll])
 
-  const handleAdd = async (payload) => {
-    await api.post('/expenses', payload)
+  const handleSave = async (payload, expenseId) => {
+    if (expenseId) {
+      await api.put(`/expenses/${expenseId}`, payload)
+    } else {
+      await api.post('/expenses', payload)
+    }
+    setEditingExpense(null)
     await loadAll()
   }
 
   const handleDelete = async (id) => {
     await api.delete(`/expenses/${id}`)
     await loadAll()
+  }
+
+  const handleEdit = (expense) => {
+    setEditingExpense(expense)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingExpense(null)
   }
 
   const handleAddCategory = (name) => {
@@ -61,9 +75,20 @@ export default function Dashboard() {
         ) : (
           <>
             <StatCards summary={summary} />
-            <ExpenseForm categories={categories} onAdd={handleAdd} onAddCategory={handleAddCategory} />
+            <ExpenseForm
+              categories={categories}
+              selectedExpense={editingExpense}
+              onSave={handleSave}
+              onAddCategory={handleAddCategory}
+              onCancel={handleCancelEdit}
+            />
             <Analytics summary={summary} />
-            <ExpenseTable expenses={expenses} categories={categories} onDelete={handleDelete} />
+            <ExpenseTable
+              expenses={expenses}
+              categories={categories}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </>
         )}
       </div>
