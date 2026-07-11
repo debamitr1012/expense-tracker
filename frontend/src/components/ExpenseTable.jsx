@@ -4,10 +4,12 @@ import { CAT_COLORS, fmt } from '../api/constants'
 
 export default function ExpenseTable({ expenses, categories, onEdit, onDelete }) {
   const [filterCat, setFilterCat] = useState('')
+  const [filterDate, setFilterDate] = useState('')
   const [search, setSearch] = useState('')
 
   let list = expenses
   if (filterCat) list = list.filter((e) => e.category === filterCat)
+  if (filterDate) list = list.filter((e) => e.date === filterDate)
   if (search) list = list.filter((e) => e.description.toLowerCase().includes(search.toLowerCase()))
 
   const handleExport = () => {
@@ -50,6 +52,7 @@ export default function ExpenseTable({ expenses, categories, onEdit, onDelete })
           <option value="">All categories</option>
           {categories?.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
+        <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
         <input placeholder="Search description..." value={search}
           onChange={(e) => setSearch(e.target.value)} />
       </div>
