@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/client'
 import { CATEGORIES } from '../api/constants'
@@ -63,6 +64,7 @@ export default function Dashboard() {
         <div className="brand">💰 <span>ExpenseFlow</span></div>
         <div className="userbox">
           <ThemeToggle />
+          <Link className="btn btn-sm" to="/monthly">Monthly report</Link>
           <div className="avatar">{initial}</div>
           <span>{user?.name}</span>
           <button className="logout" onClick={logout}>Log out</button>

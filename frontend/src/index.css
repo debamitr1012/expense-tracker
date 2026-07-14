@@ -85,10 +85,12 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
-.btn:hover { background: var(--primary-hover); }
+.btn:hover { background: var(--primary-hover); text-decoration: none; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-sm { width: auto; padding: 0.6rem 1.2rem; font-size: 0.85rem; }
+.btn, .btn:link, .btn:visited, .btn:hover, .btn:active { text-decoration: none; }
 
 .toggle-link { text-align: center; margin-top: 1.2rem; font-size: 0.88rem; color: var(--text-muted); }
 .toggle-link a { color: var(--primary); cursor: pointer; font-weight: 600; }
@@ -154,6 +156,7 @@ body {
 
 .panel { background: var(--surface); border-radius: 14px; padding: 1.4rem; border: 1px solid var(--border-soft); }
 .panel h2 { font-size: 1.05rem; margin-bottom: 1rem; }
+.panel + .grid2 { margin-top: 1.5rem; }
 .chart-box { position: relative; height: 280px; }
 
 .add-form { display: grid; grid-template-columns: 1.4fr 1fr 1.2fr 1fr auto; gap: 0.7rem; align-items: end; }
@@ -177,4 +180,20 @@ td { padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border-soft); font-
 
 .table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .table-toolbar h2 { margin-bottom: 0; }
+.summary-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-hover);
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-soft);
+}
+.summary-row strong { color: var(--text); }
+.selected-row { background: rgba(99, 102, 241, 0.08); }
 .export-btn { display: inline-flex; align-items: center; gap: 0.4rem; }
