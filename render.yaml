@@ -1,7 +1,0 @@
-services:
-  - type: web_service
-    name: expense-tracker-backend
-    env: docker
-    plan: starter
-    branch: main
-    dockerfilePath: Dockerfile
