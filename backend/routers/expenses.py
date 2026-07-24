@@ -1,6 +1,7 @@
+import calendar
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -83,6 +84,7 @@ def delete(
 
 @router.get("/summary")
 def summary(
+    month: str | None = Query(None, pattern=r"^\d{4}-\d{2}$"),
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ) -> dict:
@@ -91,31 +93,61 @@ def summary(
     ).all()
 
     today = date.today()
-    month_start = today.replace(day=1)
+    if month:
+        try:
+            year_str, month_str = month.split("-")
+            target_year, target_month = int(year_str), int(month_str)
+        except ValueError:
+            target_year, target_month = today.year, today.month
+    else:
+        target_year, target_month = today.year, today.month
 
-    total = sum((e.amount for e in expenses), start=0)
-    month_expenses = [e for e in expenses if e.date >= month_start]
-    month_total = sum((e.amount for e in month_expenses), start=0)
+    target_month_expenses = [
+        e for e in expenses if e.date.year == target_year and e.date.month == target_month
+    ]
+    month_total = sum((float(e.amount) for e in target_month_expenses), start=0.0)
 
     by_category_map: dict[str, float] = {}
-    for e in expenses:
-        by_category_map[e.category] = by_category_map.get(e.category, 0) + float(e.amount)
+    for e in target_month_expenses:
+        by_category_map[e.category] = by_category_map.get(e.category, 0.0) + float(e.amount)
     by_category = [
         {"category": cat, "total": tot}
         for cat, tot in sorted(by_category_map.items(), key=lambda kv: kv[1], reverse=True)
     ]
 
+    _, num_days = calendar.monthrange(target_year, target_month)
+    if target_year == today.year and target_month == today.month:
+        days_passed = max(today.day, 1)
+    else:
+        days_passed = num_days
+
+    avg_per_day = month_total / days_passed if days_passed > 0 else 0.0
+
     daily_trend = []
-    for i in range(14):
-        day = today - timedelta(days=13 - i)
-        day_total = sum((float(e.amount) for e in expenses if e.date == day), start=0)
-        daily_trend.append({"date": day.isoformat(), "total": day_total})
+    for day_num in range(1, num_days + 1):
+        d = date(target_year, target_month, day_num)
+        day_total = sum((float(e.amount) for e in target_month_expenses if e.date == d), start=0.0)
+        daily_trend.append({"date": d.isoformat(), "total": day_total})
+
+    if target_month == 1:
+        prev_year, prev_month = target_year - 1, 12
+    else:
+        prev_year, prev_month = target_year, target_month - 1
+
+    prev_month_expenses = [
+        e for e in expenses if e.date.year == prev_year and e.date.month == prev_month
+    ]
+    prev_month_total = sum((float(e.amount) for e in prev_month_expenses), start=0.0)
+    total_all_time = sum((float(e.amount) for e in expenses), start=0.0)
 
     return {
-        "total": float(total),
-        "monthTotal": float(month_total),
-        "count": len(expenses),
-        "avgPerDay": float(month_total) / today.day if today.day > 0 else 0,
+        "selectedMonth": f"{target_year:04d}-{target_month:02d}",
+        "total": total_all_time,
+        "monthTotal": month_total,
+        "prevMonthTotal": prev_month_total,
+        "count": len(target_month_expenses),
+        "totalCount": len(expenses),
+        "avgPerDay": float(avg_per_day),
         "byCategory": by_category,
         "dailyTrend": daily_trend,
     }

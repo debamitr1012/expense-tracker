@@ -2,7 +2,15 @@ import { useState } from 'react'
 import * as XLSX from 'xlsx'
 import { CAT_COLORS, fmt } from '../api/constants'
 
-export default function ExpenseTable({ expenses, categories, onEdit, onDelete }) {
+export default function ExpenseTable({
+  expenses,
+  categories,
+  onEdit,
+  onDelete,
+  selectedMonthLabel,
+  showAllTime,
+  onToggleAllTime
+}) {
   const [filterCat, setFilterCat] = useState('')
   const [filterDate, setFilterDate] = useState('')
   const [search, setSearch] = useState('')
@@ -42,10 +50,19 @@ export default function ExpenseTable({ expenses, categories, onEdit, onDelete })
   return (
     <div className="panel">
       <div className="table-toolbar">
-        <h2>Transactions</h2>
-        <button className="btn btn-sm export-btn" onClick={handleExport} disabled={list.length === 0}>
-          Export excel
-        </button>
+        <div>
+          <h2>Transactions {showAllTime ? '(All Time)' : `(${selectedMonthLabel || 'Selected Month'})`}</h2>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {onToggleAllTime && (
+            <button className="btn btn-sm" style={{ background: 'var(--surface-hover)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={onToggleAllTime}>
+              {showAllTime ? 'Show Month Only' : 'Show All Time'}
+            </button>
+          )}
+          <button className="btn btn-sm export-btn" onClick={handleExport} disabled={list.length === 0}>
+            Export excel
+          </button>
+        </div>
       </div>
       <div className="filters">
         <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>

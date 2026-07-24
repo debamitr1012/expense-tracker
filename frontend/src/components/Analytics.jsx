@@ -8,7 +8,7 @@ import { useTheme } from '../context/ThemeContext'
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
-export default function Analytics({ summary }) {
+export default function Analytics({ summary, selectedMonthLabel }) {
   const { theme } = useTheme()
   if (!summary) return null
 
@@ -37,7 +37,7 @@ export default function Analytics({ summary }) {
   }
 
   const barData = {
-    labels: trend.map((d) => d.date.slice(5)),
+    labels: trend.map((d) => d.date.slice(8)), // day of month e.g. "01", "02"
     datasets: [{
       label: 'Spent',
       data: trend.map((d) => d.total),
@@ -59,17 +59,19 @@ export default function Analytics({ summary }) {
     }
   }
 
+  const monthName = selectedMonthLabel || 'Selected Month'
+
   return (
     <div className="grid2">
       <div className="panel">
-        <h2>Spending by category</h2>
+        <h2>Category breakdown ({monthName})</h2>
         <div className="chart-box">
           {cats.length ? <Doughnut data={doughnutData} options={doughnutOpts} />
-            : <p className="empty">No data yet</p>}
+            : <p className="empty">No data for {monthName}</p>}
         </div>
       </div>
       <div className="panel">
-        <h2>Daily spending (last 14 days)</h2>
+        <h2>Daily spending ({monthName})</h2>
         <div className="chart-box"><Bar data={barData} options={barOpts} /></div>
       </div>
     </div>
